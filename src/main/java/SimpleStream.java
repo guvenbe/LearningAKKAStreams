@@ -8,6 +8,7 @@ import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 
 import javax.swing.text.html.HTMLDocument;
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -25,7 +26,11 @@ public class SimpleStream {
 //        });
         Source<String, NotUsed> repeatingNamesSource =Source.cycle(names::iterator);
         Iterator<Integer> infiniteRange = Stream.iterate(0, i->i +1).iterator();
-        Source<Integer,NotUsed> infiniteRangeSource = Source.fromIterator(()->infiniteRange);
+        Source<Integer,NotUsed> infiniteRangeSource = Source
+                .fromIterator(()->infiniteRange)
+                .throttle(1, Duration.ofSeconds(3))
+                .take(5);
+
         Flow<Integer,String,NotUsed> flow = Flow.of(Integer.class).map(value -> "The next value is " + value);
         Flow<String,String,NotUsed> stringFlow = Flow.of(String.class).map(value -> "The next value is " + value);
         Flow<Double,String,NotUsed> doubleFlow = Flow.of(Double.class).map(value -> "The next value is " + value);
@@ -36,7 +41,7 @@ public class SimpleStream {
         RunnableGraph<NotUsed> graph3 = repeatingNamesSource.via(stringFlow).to(sink);
         RunnableGraph<NotUsed> graph4 = infiniteRangeSource.via(flow).to(sink);
         ActorSystem actorSystem = ActorSystem.create(Behaviors.empty(), "actorSystem");
-        graph.run(actorSystem);
+        //graph.run(actorSystem);
 
         //graph2.run(actorSystem);
         //graph3.run(actorSystem);
