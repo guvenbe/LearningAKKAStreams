@@ -38,14 +38,22 @@ public class SimpleStream {
         Sink<String, CompletionStage<Done>> ignoreSinke  = Sink.ignore();
         RunnableGraph<NotUsed> graph = source.via(stringFlow).to(sink);
         RunnableGraph<NotUsed> graph2 = piSource.via(doubleFlow).to(sink);
-        RunnableGraph<NotUsed> graph3 = repeatingNamesSource.via(stringFlow).to(sink);
+
         RunnableGraph<NotUsed> graph4 = infiniteRangeSource.via(flow).to(sink);
+
         ActorSystem actorSystem = ActorSystem.create(Behaviors.empty(), "actorSystem");
         //graph.run(actorSystem);
 
         //graph2.run(actorSystem);
         //graph3.run(actorSystem);
-        graph4.run(actorSystem);
+        //graph4.run(actorSystem);
+
+        //below are the same
+        //repeatingNamesSource.to(sink).run(actorSystem);
+        //sink.runWith(repeatingNamesSource, actorSystem);
+        //sink.runWith(repeatingNamesSource.via(stringFlow), actorSystem);
+        //repeatingNamesSource.via(stringFlow).runForeach(System.out::println, actorSystem);
+        infiniteRangeSource.via(flow).to(sink).run(actorSystem);
 
 
     }
