@@ -34,8 +34,8 @@ public class SimpleStream {
         Flow<Integer,String,NotUsed> flow = Flow.of(Integer.class).map(value -> "The next value is " + value);
         Flow<String,String,NotUsed> stringFlow = Flow.of(String.class).map(value -> "The next value is " + value);
         Flow<Double,String,NotUsed> doubleFlow = Flow.of(Double.class).map(value -> "The next value is " + value);
-        Sink<String, CompletionStage<Done>> sink = Sink.foreach(System.out::println);
-
+        Sink<String, CompletionStage<Done>> sink  = Sink.foreach(System.out::println);
+        Sink<String, CompletionStage<Done>> ignoreSinke  = Sink.ignore();
         RunnableGraph<NotUsed> graph = source.via(stringFlow).to(sink);
         RunnableGraph<NotUsed> graph2 = piSource.via(doubleFlow).to(sink);
         RunnableGraph<NotUsed> graph3 = repeatingNamesSource.via(stringFlow).to(sink);
