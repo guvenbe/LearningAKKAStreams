@@ -38,9 +38,9 @@ public class ExploringFlows {
         //Flow<IntegerList, Integer, NotUsed> unGroupedFlow =Flow.of(IntegerList.class).mapConcat(value -> null);
         //Flow<List, Integer, NotUsed> unGroupedFlow =Flow.of(List.class).mapConcat(value -> value);
 
-
+        Flow<Integer, Integer, NotUsed> chainedFlow = filterFlow.via(mapConcatFlow);
         Sink<Integer, CompletionStage<Done>> printsink =  Sink.foreach(System.out::println);
 
-        number.via(filterFlow).via(mapConcatFlow).via(groupFlow).to(printsink).run(actorSystem);
+        number.via(chainedFlow).via(groupFlow).to(printsink).run(actorSystem);
     }
 }
