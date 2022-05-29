@@ -11,8 +11,9 @@ public class ExploringMaterializedValues {
     public static void main(String[] args) {
         ActorSystem actorSystem = ActorSystem.create(Behaviors.empty(), "actorSystem");
         Random random = new Random();
+        //infinite stream
         Source<Integer, NotUsed> source =
-                Source.range(1, 100).map(x -> random.nextInt(1000) + 1);
+                Source.repeat(1).map(x -> random.nextInt(1000) + 1);
         Flow<Integer, Integer, NotUsed> greaterThan200Filter =
                 Flow.of(Integer.class)
                         .filter(x -> x > 200);
@@ -40,7 +41,7 @@ public class ExploringMaterializedValues {
             } else {
                 System.out.println("something went wrong" + throwable.getMessage());
             }
-            actorSystem.terminate();
+            //actorSystem.terminate();
         });
 
 //        CompletionStage<Done> result2 = source.toMat(Sink.ignore(), Keep.right())
@@ -60,14 +61,14 @@ public class ExploringMaterializedValues {
                 .toMat(sinkWithSum, Keep.right())
                 .run(actorSystem);
 
-        result3.whenComplete((value, throwable) -> {
-            if (throwable == null) {
-                System.out.println("The graph's materialized value sum is : " + value);
-            } else {
-                System.out.println("something went wrong" + throwable.getMessage());
-            }
-            actorSystem.terminate();
-        });
+//        result3.whenComplete((value, throwable) -> {
+//            if (throwable == null) {
+//                System.out.println("The graph's materialized value sum is : " + value);
+//            } else {
+//                System.out.println("something went wrong" + throwable.getMessage());
+//            }
+//            //actorSystem.terminate();
+//        });
 
     }
 }
