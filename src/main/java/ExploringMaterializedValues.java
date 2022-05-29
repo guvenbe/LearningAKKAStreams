@@ -34,8 +34,8 @@ public class ExploringMaterializedValues {
                 .toMat(sinkWithCounter, Keep.right())
                 .run(actorSystem);
 
-        result.whenComplete((value, throwable)->{
-            if(throwable==null){
+        result.whenComplete((value, throwable) -> {
+            if (throwable == null) {
                 System.out.println("The graph's materialized value is : " + value);
             } else {
                 System.out.println("something went wrong" + throwable.getMessage());
@@ -46,5 +46,28 @@ public class ExploringMaterializedValues {
 //        CompletionStage<Done> result2 = source.toMat(Sink.ignore(), Keep.right())
 //                .run(actorSystem);
 //        result2.whenComplete((value, throwable) ->actorSystem.terminate());
+
+        System.out.println("Starting Reduce");
+        Sink<Integer, CompletionStage<Integer>> sinkWithSum
+                = Sink.reduce((firstValue, secondValue) -> {
+            System.out.println(secondValue);
+            return firstValue + secondValue;
+        });
+
+        CompletionStage<Integer> result3 = source
+                .via(greaterThan200Filter)
+                .viaMat(evenNumberFilter, Keep.right())
+                .toMat(sinkWithSum, Keep.right())
+                .run(actorSystem);
+
+        result3.whenComplete((value, throwable) -> {
+            if (throwable == null) {
+                System.out.println("The graph's materialized value sum is : " + value);
+            } else {
+                System.out.println("something went wrong" + throwable.getMessage());
+            }
+            actorSystem.terminate();
+        });
+
     }
 }
