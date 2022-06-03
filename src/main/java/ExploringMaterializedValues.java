@@ -29,20 +29,20 @@ public class ExploringMaterializedValues {
             return counter + 1;
         });
 
-        CompletionStage<Integer> result = source
-                .via(greaterThan200Filter)
-                .via(evenNumberFilter)
-                .toMat(sinkWithCounter, Keep.right())
-                .run(actorSystem);
-
-        result.whenComplete((value, throwable) -> {
-            if (throwable == null) {
-                System.out.println("The graph's materialized value is : " + value);
-            } else {
-                System.out.println("something went wrong" + throwable.getMessage());
-            }
-            //actorSystem.terminate();
-        });
+//        CompletionStage<Integer> result = source
+//                .via(greaterThan200Filter)
+//                .via(evenNumberFilter)
+//                .toMat(sinkWithCounter, Keep.right())
+//                .run(actorSystem);
+//
+//        result.whenComplete((value, throwable) -> {
+//            if (throwable == null) {
+//                System.out.println("The graph's materialized value is : " + value);
+//            } else {
+//                System.out.println("something went wrong" + throwable.getMessage());
+//            }
+//            actorSystem.terminate();
+//        });
 
 //        CompletionStage<Done> result2 = source.toMat(Sink.ignore(), Keep.right())
 //                .run(actorSystem);
@@ -55,20 +55,20 @@ public class ExploringMaterializedValues {
             return firstValue + secondValue;
         });
 
-        CompletionStage<Integer> result3 = source
-                .via(greaterThan200Filter)
+        CompletionStage<Integer> result3 = source.take(100)
+                .via(greaterThan200Filter).limit(110)
                 .viaMat(evenNumberFilter, Keep.right())
                 .toMat(sinkWithSum, Keep.right())
                 .run(actorSystem);
 
-//        result3.whenComplete((value, throwable) -> {
-//            if (throwable == null) {
-//                System.out.println("The graph's materialized value sum is : " + value);
-//            } else {
-//                System.out.println("something went wrong" + throwable.getMessage());
-//            }
-//            //actorSystem.terminate();
-//        });
+        result3.whenComplete((value, throwable) -> {
+            if (throwable == null) {
+                System.out.println("The graph's materialized value sum is : " + value);
+            } else {
+                System.out.println("something went wrong" + throwable.getMessage());
+            }
+            actorSystem.terminate();
+        });
 
     }
 }
