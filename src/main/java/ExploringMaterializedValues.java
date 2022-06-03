@@ -4,6 +4,7 @@ import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.stream.javadsl.*;
 
+import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.CompletionStage;
 
@@ -55,9 +56,10 @@ public class ExploringMaterializedValues {
             return firstValue + secondValue;
         });
 
-        CompletionStage<Integer> result3 = source.take(100)
+        CompletionStage<Integer> result3 = source.take(100).throttle(1, Duration.ofSeconds(1))
+                .takeWithin(Duration.ofSeconds(5))
                 .via(greaterThan200Filter).limit(110)
-                .viaMat(evenNumberFilter, Keep.right())
+                .viaMat(evenNumberFilter.takeWhile(value -> value < 900), Keep.right())
                 .toMat(sinkWithSum, Keep.right())
                 .run(actorSystem);
 
