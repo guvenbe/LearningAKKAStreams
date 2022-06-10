@@ -47,11 +47,11 @@ public class AdvancedBackpressure {
             return x.toString();
         }).throttle(1, Duration.ofSeconds(1));
 
-
+        Flow<String, String, NotUsed> extrapolateFlow = Flow.of(String.class).extrapolate(x -> List.of(x).iterator());
         Sink<String, CompletionStage<Done>> sink = Sink.foreach(x -> System.out.println("Sinking " + x));
 
 //        source.via(conflateWithSeed).via(flow).to(sink).run(actorSystem);
-        source.via(conflateFlow).via(flow).to(sink).run(actorSystem);
+        source.via(conflateFlow).via(flow).async().via(extrapolateFlow).to(sink).run(actorSystem);
 
     }
 }
